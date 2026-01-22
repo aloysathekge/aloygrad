@@ -2,8 +2,7 @@ class MSELoss:
     """Mean Squared Error for regression."""
 
     def __call__(self, predictions, targets):
-        # predictions: iterable of Value (or numbers)
-        # targets: iterable of Value (or numbers)
+       
         predictions = list(predictions)
         targets = list(targets)
 
