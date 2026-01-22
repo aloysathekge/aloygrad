@@ -1,5 +1,5 @@
 import random
-from value import Value
+from aloygrad.engine import Value
 
 
 class Module:
@@ -66,29 +66,8 @@ class MLP(Module):
     def __repr__(self):
         return f"MLP of [{', '.join(str(layer) for layer in self.layers)}]"
 
-class MSELoss:
-    """Mean Squared Error for regression"""
-    def __call__(self, predictions, targets ):
-        # predictions: list of Value objects
-        # targets :list pf Value objects (or numbers)
 
-        n = len(predictions)
-        loss=sum((p-t)**2 for p,t in zip(predictions, targets))
-        return loss*(1.0/n) # Avearge
 
-class SGD:
-    """Stochastic Gradient Descent"""
-    def __init__(self, parameters, lr=0.01):
-        self.parameters=parameters
-        self.lr=lr
-    
-    def step(self):
-        for p in self.parameters:
-            p.data -= self.lr *p.grad
-    
-    def zero_grad(self):
-        for p in self.parameters:
-            p.grad=0.0
 
     
     
