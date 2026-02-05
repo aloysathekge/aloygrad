@@ -1,6 +1,5 @@
-
 import math
-class Value:
+class Scalar:
     def __init__(self,data,_children=(),_op=''):
         self.data=data
         self.grad=0.0
@@ -10,7 +9,8 @@ class Value:
 
 
     def __add__(self,other):
-        out=Value(self.data +other.data,(self,other) , '+')
+        other = other if isinstance(other, Scalar) else Scalar(other)
+        out=Scalar(self.data +other.data,(self,other) , '+')
         
         def _backward():
             # Gradient flows equally to both inputs
@@ -22,12 +22,12 @@ class Value:
         return self +(-other)
     
     def __rsub__(self,other):
-         other = other if isinstance(other, Value) else Value(other)
+         other = other if isinstance(other, Scalar) else Scalar(other)
          return other +(-self)
 
     def __radd__(self,other):
 
-        other = other if isinstance(other, Value) else Value(other)
+        other = other if isinstance(other, Scalar) else Scalar(other)
         return self +other
     
     def __neg__(self):
@@ -43,8 +43,8 @@ class Value:
         return other * self**-1
 
     def __mul__(self,other):
-        other= other if isinstance(other, Value) else Value(other)
-        out=Value(self.data * other.data, (self,other), '*')
+        other= other if isinstance(other, Scalar) else Scalar(other)
+        out=Scalar(self.data * other.data, (self,other), '*')
 
         def _backward():
             # Chain rule d(a*b)/da=b,d(a*b)/db=a
@@ -55,7 +55,7 @@ class Value:
 
     def __pow__(self,other):
         assert isinstance(other, (int, float)), "only supporting int/float powers for now"
-        out = Value(self.data**other, (self,), f'**{other}')
+        out = Scalar(self.data**other, (self,), f'**{other}')
 
         def _backward():
             self.grad += (other * self.data**(other-1)) * out.grad
@@ -71,7 +71,7 @@ class Value:
     def tanh(self):
         x=self.data
         t=(math.exp(2*x)-1)/(math.exp(2*x) +1)
-        out= Value(t,(self,),'tanh')
+        out= Scalar(t,(self,),'tanh')
 
         def _backward():
             #d(tanh(x))/dx=1-tanh**2(x)
@@ -83,7 +83,7 @@ class Value:
     def relu(self):
         #Relu: max(0,x)
 
-        out = Value(max(0,self.data),(self,),"Relu")
+        out = Scalar(max(0,self.data),(self,),"Relu")
 
         def _backward():
             self.grad +=(1.0 if self.data>0 else 0.0)*out.grad
@@ -95,7 +95,7 @@ class Value:
     def sigmoid(self):
         x=self.data
         s= 1/(1+math.exp(-x))
-        out=Value(s,(self,),'sigmoid')
+        out=Scalar(s,(self,),'sigmoid')
 
         def _backward():
             self.grad+=(s*(1+s))*out.grad
